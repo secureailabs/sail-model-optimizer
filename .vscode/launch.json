@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Python: Optimizer with venv",
+        "type": "python",
+        "request": "launch",
+        "python": "${workspaceFolder}/venv_optimizer/bin/python", // Update with the path to your venv's python executable
+        "program": "${file}",
+        "cwd": "${workspaceFolder}",
+        "justMyCode": false,
+        "env": {
+          "PYTHONPATH": "${workspaceFolder}",
+          "PATH_DIR_RUN": "/home/adam/runs" // Add any additional environment variables you need
+        },
+        "console": "integratedTerminal"
+      }
+    ]
+  }

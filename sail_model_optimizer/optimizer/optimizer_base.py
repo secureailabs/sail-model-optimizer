@@ -2,6 +2,7 @@ import json
 import os
 from copy import deepcopy
 from hashlib import sha256
+from itertools import permutations
 from typing import List
 
 from pandas import DataFrame
@@ -74,6 +75,7 @@ class OptimizerBase:
                     param_grid[name_param] = [
                         value_param * value for value in dict_params_config[name_param]["list_value"]
                     ]
+                ## TODO: add categorical features to search space
             else:
                 param_grid[name_param] = [value_param]
         return param_grid
@@ -119,15 +121,14 @@ class OptimizerBase:
         for name_feature in list_all_features:
             dict_run_new = deepcopy(dict_run)
             if name_feature in dict_run_new["list_feature_selected"]:
-                print(f"removing {name_feature}")
+                # print(f"removing {name_feature}")
                 dict_run_new["list_feature_selected"].remove(name_feature)
             else:
-                print(f"adding {name_feature}")
+                # print(f"adding {name_feature}")
                 dict_run_new["list_feature_selected"].append(name_feature)
 
-            print("feature_count", len(dict_run_new["list_feature_selected"]))
+            # print("feature_count", len(dict_run_new["list_feature_selected"]))
             list_dict_run.append(dict_run_new)
-
         return list_dict_run
 
     def optimize_feature_selection(
@@ -146,8 +147,8 @@ class OptimizerBase:
                 # for display only
                 score = dict_run_new["score"]
                 list_feature_selected = dict_run_new["list_feature_selected"]
-                print(f"new best score: {score}")
-                print(f"list_feauter {list_feature_selected}")
+                # print(f"new best score: {score}")
+                # print(f"list_feauter {list_feature_selected}")
         return dict_run_best
 
     def optimize_model(

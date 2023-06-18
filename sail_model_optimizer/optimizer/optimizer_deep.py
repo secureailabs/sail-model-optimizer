@@ -1,6 +1,6 @@
 from pandas import DataFrame
 
-from sail_model_optimizer.optimizer_base import OptimizerBase
+from sail_model_optimizer.optimizer.optimizer_base import OptimizerBase
 
 
 class OptimizerDeep(OptimizerBase):
@@ -30,6 +30,7 @@ class OptimizerDeep(OptimizerBase):
         list_dict_run = self.mutate_feature_selection(dict_run_best, list(df_input.columns))
         for dict_run_new in list_dict_run:
             # print(f"trying {param_value}", flush=True)
+            print("Trying feture set: " + str(len(dict_run_new["list_feature_selected"])))
             dict_run_new = self.optimize_hyper_parameter(df_input, df_output, dict_run_new)
             if dict_run_best["score"] < dict_run_new["score"]:
                 dict_run_best = dict_run_new
@@ -54,7 +55,7 @@ class OptimizerDeep(OptimizerBase):
         while has_improvement:
             has_improvement = False
             print(f"Starting iteration")
-            print(f"new best score {score_best}")
+            print(f"iteration best score {score_best}")
             dict_run = self.optimize_feature_selection(df_input, df_output, dict_run)
 
             if score_best < dict_run["score"]:

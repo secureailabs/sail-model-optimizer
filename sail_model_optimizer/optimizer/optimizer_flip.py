@@ -1,6 +1,6 @@
 from pandas import DataFrame
 
-from sail_model_optimizer.optimizer_base import OptimizerBase
+from sail_model_optimizer.optimizer.optimizer_base import OptimizerBase
 
 
 class OptimizerFlip(OptimizerBase):
@@ -19,14 +19,20 @@ class OptimizerFlip(OptimizerBase):
         score_best = dict_run["score"]
         # iterative run
         has_improvement = True
+        hasnt_improved = 0
         while has_improvement:
             has_improvement = False
-            print(f"Starting iteration")
-            print(f"new best score {score_best}")
+            print("didn't improve: " + str(hasnt_improved))
+            hasnt_improved += 1
+            # print(f"Starting iteration")
+            # print(f"new best score {score_best}")
+            print("param count: " + str(len(dict_run["list_feature_selected"])))
             dict_run = self.optimize_feature_selection(df_input, df_output, dict_run)
-            dict_run = self.optimize_hyper_parameter(df_input, df_output, dict_run)
+            # dict_run = self.optimize_hyper_parameter(df_input, df_output, dict_run)
             if score_best < dict_run["score"]:
                 score_best = dict_run["score"]
+                print("!!!!param count: " + str(len(dict_run["list_feature_selected"])))
                 print(f"!!!!new best score {score_best}")
                 has_improvement = True
+                hasnt_improved = 0
         return dict_run
