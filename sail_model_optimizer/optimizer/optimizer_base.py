@@ -99,14 +99,14 @@ class OptimizerBase:
         for i in range(self.optimize_hyper_parameter_count):
             print(f"iteration {i}", flush=True)
             for param_name in dict_run_best["dict_params_config"]:
-                print(f"optimize {param_name}", flush=True)
+                # print(f"optimize {param_name}", flush=True)
                 list_dict_run = self.mutate_pramam(dict_run_best, param_name)
                 for dict_run_new in list_dict_run:
                     param_value = dict_run_new["dict_params_current"][param_name]
-                    print(f"trying {param_value}", flush=True)
+                    # print(f"trying {param_value}", flush=True)
                     dict_run_new = self.evaluate_run_fold(df_input, df_output, dict_run_new)
-                    print(dict_run_best["score"])
-                    print(dict_run_new["score"])
+                    # print(dict_run_best["score"])
+                    # print(dict_run_new["score"])
                     if dict_run_best["score"] < dict_run_new["score"]:
                         dict_run_best = dict_run_new
                         # for display only

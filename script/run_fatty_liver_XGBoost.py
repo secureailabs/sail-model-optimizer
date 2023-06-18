@@ -28,7 +28,6 @@ optimizer = OptimizerGenetic(
     run_evaluator,
     run_dict_builder,
 )
-optimizer.wipe()
 dict_run = optimizer.optimize_model(df_input_train, df_output_train)
 print("training score")
 print(dict_run["score"])

@@ -1,3 +1,5 @@
+import json
+import os
 import random
 
 from pandas import DataFrame
@@ -45,63 +47,82 @@ class RunDictBuilderXGBoost:
 
     def build_run_dict(self, df_input: DataFrame, df_output: DataFrame) -> dict:
         dict_run = {}
-        starting_portion = 0.6
-        margin = 0.05
-        num_elements = random.randint(
-            int(len(df_input.columns) * (starting_portion - margin)),
-            int(len(df_input.columns) * (starting_portion + margin)),
-        )
-        random_permutation = random.sample(list(df_input.columns), num_elements)
-        dict_run["list_feature_selected"] = random_permutation
-        dict_run["dict_params_current"] = {
-            "min_child_weight": 5,
-            "gamma": 2,
-            "subsample": 0.8,
-            "colsample_bytree": 0.8,
-            "max_depth": 5,
-            "scale_pos_weight": 0.5,
-            "eta": 0.3,
-        }
 
-        dict_run["dict_params_config"] = {
-            "min_child_weight": {
-                "type": "add",
-                "list_value": [-1, 1],
-                "resolution": 1,
-            },
-            "gamma": {
-                "type": "multiply",
-                "list_value": [0.99, 1.01],
-                "resolution": 0.01,
-            },
-            "subsample": {
-                "type": "multiply",
-                "list_value": [0.99, 1.01],
-                "resolution": 0.01,
-                "min_value": 0,
-                "max_value": 1,
-            },
-            "colsample_bytree": {
-                "type": "multiply",
-                "list_value": [0.99, 1.01],
-                "resolution": 0.01,
-            },
-            # "max_depth": {
-            #     "type": "add",
-            #     "list_value": [-1, 1],
-            #     "resolution": 1,
-            #     "min_value": 1.0,
-            # },
-            "scale_pos_weight": {
-                "type": "multiply",
-                "list_value": [0.99, 1.01],
-                "resolution": 0.01,
-            },
-            "eta": {
-                "type": "multiply",
-                "list_value": [0.99, 1.01],
-                "resolution": 0.01,
-            },
-        }
-        dict_run["score"] = 0
+        path_dir_results = os.environ["PATH_DIR_RESULTS"]
+        path_file_results = os.path.join(path_dir_results, f"xgboost.json")
+
+        if os.path.exists(path_file_results):
+            try:
+                print("Reading dict_run xgboost")
+                with open(path_file_results, "r") as file_model:
+                    dict_run = json.load(file_model)
+            except IOError:
+                print("Error reading the file!")
+        else:
+            print("New dict_run xgboost")
+            starting_portion = 0.4
+            margin = 0.05
+            num_elements = random.randint(
+                int(len(df_input.columns) * (starting_portion - margin)),
+                int(len(df_input.columns) * (starting_portion + margin)),
+            )
+            random_permutation = random.sample(list(df_input.columns), num_elements)
+            dict_run["list_feature_selected"] = random_permutation
+            dict_run["dict_params_current"] = {
+                "min_child_weight": 5,
+                "gamma": 2,
+                "subsample": 0.8,
+                "colsample_bytree": 0.8,
+                "max_depth": 5,
+                "scale_pos_weight": 0.5,
+                "eta": 0.3,
+            }
+
+            dict_run["dict_params_config"] = {
+                "min_child_weight": {
+                    "type": "add",
+                    "list_value": [-1, 1],
+                    "resolution": 1,
+                },
+                "gamma": {
+                    "type": "multiply",
+                    "list_value": [0.99, 1.01],
+                    "resolution": 0.01,
+                },
+                "subsample": {
+                    "type": "multiply",
+                    "list_value": [0.99, 1.01],
+                    "resolution": 0.01,
+                    "min_value": 0,
+                    "max_value": 1,
+                },
+                "colsample_bytree": {
+                    "type": "multiply",
+                    "list_value": [0.99, 1.01],
+                    "resolution": 0.01,
+                },
+                # "max_depth": {
+                #     "type": "add",
+                #     "list_value": [-1, 1],
+                #     "resolution": 1,
+                #     "min_value": 1.0,
+                # },
+                "scale_pos_weight": {
+                    "type": "multiply",
+                    "list_value": [0.99, 1.01],
+                    "resolution": 0.01,
+                },
+                "eta": {
+                    "type": "multiply",
+                    "list_value": [0.99, 1.01],
+                    "resolution": 0.01,
+                },
+            }
+            dict_run["score"] = 0
         return dict_run
+
+    def save_dict_to_results(self, dict_run: dict):
+        path_dir_results = os.environ["PATH_DIR_RESULTS"]
+        path_file_results = os.path.join(path_dir_results, f"xgboost.json")
+        with open(path_file_results, "w") as file_model:
+            json.dump(dict_run, file_model)

@@ -1,3 +1,5 @@
+import json
+import os
 import random
 import warnings
 
@@ -48,32 +50,51 @@ class RunDictBuilderLogisticRegression:
 
     def build_run_dict(self, df_input: DataFrame, df_output: DataFrame) -> dict:
         dict_run = {}
-        starting_portion = 0.5
-        margin = 0.1
-        num_elements = random.randint(
-            int(len(df_input.columns) * (starting_portion - margin)),
-            int(len(df_input.columns) * (starting_portion + margin)),
-        )
-        random_permutation = random.sample(list(df_input.columns), num_elements)
-        dict_run["list_feature_selected"] = random_permutation
-        dict_run["dict_params_current"] = {
-            "C": 1.0,
-            "max_iter": 100,
-        }
-        dict_run["dict_params_config"] = {
-            "C": {
-                "type": "multiply",
-                "list_value": [0.9, 1.1],
-                "resolution": 0.1,
-            },
-            "max_iter": {
-                "type": "add",
-                "list_value": [-1, 1],
-                "resolution": 1,
-            },
-        }
-        dict_run["score"] = 0
+
+        path_dir_results = os.environ["PATH_DIR_RESULTS"]
+        path_file_results = os.path.join(path_dir_results, f"logistic.json")
+
+        if os.path.exists(path_file_results):
+            try:
+                print("Reading dict_run logistic")
+                with open(path_file_results, "r") as file_model:
+                    dict_run = json.load(file_model)
+            except IOError:
+                print("Error reading the file!")
+        else:
+            print("New dict_run logistic")
+            starting_portion = 0.5
+            margin = 0.1
+            num_elements = random.randint(
+                int(len(df_input.columns) * (starting_portion - margin)),
+                int(len(df_input.columns) * (starting_portion + margin)),
+            )
+            random_permutation = random.sample(list(df_input.columns), num_elements)
+            dict_run["list_feature_selected"] = random_permutation
+            dict_run["dict_params_current"] = {
+                "C": 1.0,
+                "max_iter": 100,
+            }
+            dict_run["dict_params_config"] = {
+                "C": {
+                    "type": "multiply",
+                    "list_value": [0.9, 1.1],
+                    "resolution": 0.1,
+                },
+                "max_iter": {
+                    "type": "add",
+                    "list_value": [-1, 1],
+                    "resolution": 1,
+                },
+            }
+            dict_run["score"] = 0
         return dict_run
+
+    def save_dict_to_results(self, dict_run: dict):
+        path_dir_results = os.environ["PATH_DIR_RESULTS"]
+        path_file_results = os.path.join(path_dir_results, f"logistic.json")
+        with open(path_file_results, "w") as file_model:
+            json.dump(dict_run, file_model)
 
 
 ## TODO: add categorical features to search

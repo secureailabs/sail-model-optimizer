@@ -1,3 +1,5 @@
+import json
+import os
 import random
 
 from pandas import DataFrame
@@ -15,11 +17,11 @@ class OptimizerGenetic(OptimizerBase):
         dict_run["list_feature_selected"] = individual
         return self.evaluate_run_fold(df_input, df_output, dict_run)["score"]
 
-    def genetic_feature_selection(self, df_input, df_output, dict_run, previous_champion):
+    def genetic_feature_selection(self, df_input, df_output, dict_run, previous_champion=None):
 
         # Set the parameters
-        population_size = 100  # Number of individuals in each generation
-        num_generations = 5  # Number of generations
+        population_size = 5  # Number of individuals in each generation
+        num_generations = 3  # Number of generations
         mutation_rate = 0.1  # Probability of mutation
         population = []
 
@@ -114,8 +116,8 @@ class OptimizerGenetic(OptimizerBase):
         # iterative run
         has_improvement = True
         hasnt_improved = 0
-        # while has_improvement or hasnt_improved < 5:
-        while has_improvement:
+        while has_improvement or hasnt_improved < 5:
+            # while has_improvement:
             has_improvement = False
             hasnt_improved += 1
             # print(f"Starting iteration")
@@ -125,9 +127,45 @@ class OptimizerGenetic(OptimizerBase):
             dict_run = self.optimize_hyper_parameter(df_input, df_output, dict_run)
             if score_best < dict_run["score"]:
                 score_best = dict_run["score"]
+
+                path_dir_model = os.environ["PATH_DIR_RUN"]
+                path_file_model = os.path.join(path_dir_model, f"best.json")
+
+                with open(path_file_model, "w") as file_model:
+                    json.dump(dict_run, file_model)
+
                 print("!!!!param count: " + str(len(dict_run["list_feature_selected"])))
                 print(f"!!!!new genetic best score {score_best}")
                 has_improvement = True
                 hasnt_improved = 0
             print("didn't improve: " + str(hasnt_improved))
         return dict_run
+
+    def run(self, df_input_train, df_output_train, df_input_test, df_output_test):
+        dict_run = self.optimize_model(df_input_train, df_output_train)
+
+        # Grab best model from training round
+        path_dir_model = os.environ["PATH_DIR_RUN"]
+        path_file_model = os.path.join(path_dir_model, f"best.json")
+        with open(path_file_model, "r") as file_model:
+            dict_run = json.load(file_model)
+
+        print("training score")
+        print(dict_run["score"])
+        print(dict_run["list_feature_selected"])
+
+        # Load the previous best model if there is one, random if not
+        dict_run_old = self.run_dict_builder.build_run_dict(df_input_train, df_output_train)
+
+        dict_run = self.run_evaluator.evaluate_run(
+            df_input_train, df_output_train, df_input_test, df_output_test, dict_run
+        )
+        print("test score")
+        print(dict_run["score"])
+        print(dict_run["dict_params_current"])
+
+        if dict_run["score"] > dict_run_old["score"]:
+            self.run_dict_builder.save_dict_to_results(dict_run)
+            print("New best against test set")
+            # with open("script/best_models/logistic.json", "w") as file_model:
+            #     json.dump(dict_run, file_model)
