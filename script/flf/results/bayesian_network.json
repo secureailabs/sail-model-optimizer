@@ -1,1 +1,1 @@
-{"list_feature_selected": ["Autoimmunehepatitis", "Othercancers", "LowThyroid", "BMI", "Arthritis", "Nuts", "Fats", "Vegetables", "CrohnsorColitis", "Diabetic", "SwollenJoints"], "dict_params_current": {}, "score": 0.8066037735849056, "dict_params_config": {}}
+{"list_feature_selected": ["Arthritis", "Vegetables", "Age", "BMI", "Diabetic", "HepatitisBwithHepatitisD", "Fats", "Nuts"], "dict_params_current": {}, "score": 0.8150943396226416, "dict_params_config": {}}

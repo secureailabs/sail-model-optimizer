@@ -20,8 +20,8 @@ class OptimizerGenetic(OptimizerBase):
     def genetic_feature_selection(self, df_input, df_output, dict_run, previous_champion=None):
 
         # Set the parameters
-        population_size = 5  # Number of individuals in each generation
-        num_generations = 3  # Number of generations
+        population_size = 50  # Number of individuals in each generation
+        num_generations = 1  # Number of generations
         mutation_rate = 0.1  # Probability of mutation
         population = []
 
@@ -30,7 +30,9 @@ class OptimizerGenetic(OptimizerBase):
                 individual = previous_champion.copy()  # Create a copy of the previous champion
 
                 # Randomly mutate the individual by adding or removing features
-                for _ in range(random.randint(1, 3)):  # Adjust the range based on the desired number of mutations
+                for _ in range(
+                    random.randint(1, population_size)
+                ):  # Adjust the range based on the desired number of mutations
                     if random.random() < 0.5:  # 50% chance of adding a feature
                         feature_to_add = random.choice(df_input.columns)  # Randomly select a feature from X.columns
                         if feature_to_add not in individual:  # Add the feature if it's not already present
@@ -72,8 +74,15 @@ class OptimizerGenetic(OptimizerBase):
                 parent2 = parents[(i + 1) % population_size]
                 max_crossover_point = min(len(parent1), len(parent2)) - 1
                 min_crossover_point = max(1, max_crossover_point // 2)  # Minimum crossover point as half of the maximum
-                crossover_point = random.randint(min_crossover_point, max_crossover_point)
-                child = parent1[:crossover_point] + parent2[crossover_point:]
+
+                # Check if the range is empty
+                if min_crossover_point > max_crossover_point:
+                    # Handle the empty range case
+                    child = parent1  # Assign any one parent as the child
+                else:
+                    crossover_point = random.randint(min_crossover_point, max_crossover_point)
+                    child = parent1[:crossover_point] + parent2[crossover_point:]
+
                 offspring.append(child)
 
             # Mutation

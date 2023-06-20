@@ -46,12 +46,16 @@ class OptimizerBase:
             score = 0
             for i in range(self.fold_count):
                 df_input_train, df_input_test, df_output_train, df_output_test = train_test_split(
-                    df_input, df_output, test_size=self.fold_fracton, random_state=i
+                    df_input, df_output, test_size=self.fold_fracton, random_state=i, stratify=df_output
                 )
                 dict_run = self.run_evaluator.evaluate_run(
                     df_input_train, df_output_train, df_input_test, df_output_test, dict_run
                 )
                 score += dict_run["score"]
+
+                # DEBUGGING
+                # if dict_run["score"] > 0.90:
+                #     print("debugging wonky score: " + str(i) + "  " + str(dict_run["score"]))
             dict_run["score"] = score / self.fold_count
             # TODO add score varriance here
             with open(path_file_model, "w") as file_model:
@@ -113,7 +117,7 @@ class OptimizerBase:
                         score = dict_run_new["score"]
                         param_value = dict_run_new["dict_params_current"][param_name]
                         print(f"new best score: {score}")
-                        print(f"parameter {param_name} changed to: {param_value}")
+                        # print(f"parameter {param_name} changed to: {param_value}")
         return dict_run_best
 
     def mutate_feature_selection(self, dict_run: dict, list_all_features: List[str]):

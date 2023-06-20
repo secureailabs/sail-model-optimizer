@@ -40,11 +40,11 @@ dict_builders = [
     RunDictBuilderBayesianNetwork(),
 ]
 
-# evaluators = [RunEvaluatorBayesianNetwork()]
-# dict_builders = [RunDictBuilderBayesianNetwork()]
+evaluators = [RunEvaluatorBayesianNetwork()]
+dict_builders = [RunDictBuilderBayesianNetwork()]
 
-# evaluators = [RunEvaluatorNeuralNetwork()]
-# dict_builders = [RunDictBuilderNeuralNetwork()]
+evaluators = [RunEvaluatorNeuralNetwork()]
+dict_builders = [RunDictBuilderNeuralNetwork()]
 
 for evaluator, builder in zip(evaluators, dict_builders):
     optimizer = OptimizerGenetic(
