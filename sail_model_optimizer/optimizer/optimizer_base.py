@@ -38,10 +38,23 @@ class OptimizerBase:
         dict_run: dict,
     ) -> dict:
         path_dir_model = os.environ["PATH_DIR_RUN"]
-        path_file_model = os.path.join(path_dir_model, f"{self.hash_dict_sha256(dict_run)}.json")
+
+        # Create new dict hash dict without hit count
+        key_to_drop = "hit_count"
+        dict_for_hash = deepcopy(dict_run)
+        if key_to_drop in dict_for_hash:
+            del dict_for_hash[key_to_drop]
+
+        # drop hit count from
+        path_file_model = os.path.join(path_dir_model, f"{self.hash_dict_sha256(dict_for_hash)}.json")
         if os.path.exists(path_file_model):
             with open(path_file_model, "r") as file_model:
                 dict_run = json.load(file_model)
+                # Add one to the dict_run hit counter
+                if "hit_count" not in dict_run:
+                    dict_run["hit_count"] = 1
+                dict_run["hit_count"] += 1
+
         else:
             score = 0
             for i in range(self.fold_count):

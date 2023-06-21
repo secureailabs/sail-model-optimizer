@@ -27,6 +27,12 @@ df_input_train, df_input_test, df_output_train, df_output_test = train_test_spli
     random_state=42,
 )
 
+# save train test splits to file
+df_input_train.to_csv("script/fatty_liver_input_train.csv", index=False)
+df_input_test.to_csv("script/fatty_liver_input_test.csv", index=False)
+df_output_train.to_csv("script/fatty_liver_output_train.csv", index=False)
+df_output_test.to_csv("script/fatty_liver_output_test.csv", index=False)
+
 evaluators = [
     RunEvaluatorLogisticRegression(),
     RunEvaluatorXGBoost(),
@@ -40,11 +46,11 @@ dict_builders = [
     RunDictBuilderBayesianNetwork(),
 ]
 
-evaluators = [RunEvaluatorBayesianNetwork()]
-dict_builders = [RunDictBuilderBayesianNetwork()]
+# evaluators = [RunEvaluatorBayesianNetwork()]
+# dict_builders = [RunDictBuilderBayesianNetwork()]
 
-evaluators = [RunEvaluatorNeuralNetwork()]
-dict_builders = [RunDictBuilderNeuralNetwork()]
+# evaluators = [RunEvaluatorNeuralNetwork()]
+# dict_builders = [RunDictBuilderNeuralNetwork()]
 
 for evaluator, builder in zip(evaluators, dict_builders):
     optimizer = OptimizerGenetic(

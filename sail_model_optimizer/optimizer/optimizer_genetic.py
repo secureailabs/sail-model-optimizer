@@ -21,11 +21,13 @@ class OptimizerGenetic(OptimizerBase):
 
         # Set the parameters
         population_size = 50  # Number of individuals in each generation
-        num_generations = 1  # Number of generations
+        tournament_size = int(population_size * 0.1)  # Number of individuals participating in each tournament
+        num_generations = 5  # Number of generations
         mutation_rate = 0.1  # Probability of mutation
         population = []
 
         if previous_champion != None:
+            population.append(previous_champion)
             for _ in range(population_size - 1):
                 individual = previous_champion.copy()  # Create a copy of the previous champion
 
@@ -63,7 +65,7 @@ class OptimizerGenetic(OptimizerBase):
             # Select parents for reproduction (tournament selection)
             parents = []
             for _ in range(population_size):
-                tournament = random.choices(population, k=5)
+                tournament = random.choices(population, k=tournament_size)
                 parent = max(tournament, key=lambda x: fitness_scores[population.index(x)])
                 parents.append(parent)
 
@@ -103,6 +105,9 @@ class OptimizerGenetic(OptimizerBase):
                 individual = list(set(individual))
                 new_offspring.append(individual)
             offspring = new_offspring
+
+            # Select the best individual (highest fitness score) from the previous generation
+            offspring.append(max(population, key=lambda x: self.evaluate_fitness(x, df_input, df_output, dict_run)))
 
             population = offspring
 

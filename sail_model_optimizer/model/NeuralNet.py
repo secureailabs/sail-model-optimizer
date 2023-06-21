@@ -45,7 +45,7 @@ class RunEvaluatorNeuralNetwork:
         array_input_test = scaler.transform(array_input_test)
 
         array_output_test_pred = model.predict_proba(array_input_test)[:, 1]
-        array_output_test_pred = np.round(array_output_test_pred, 1)  # Round to two decimal places
+        #       array_output_test_pred = np.round(array_output_test_pred, 3)  # Round to three decimal places
         fpr, tpr, _ = roc_curve(array_output_test_true, array_output_test_pred)
         dict_run["score"] = float(auc(fpr, tpr))
 
