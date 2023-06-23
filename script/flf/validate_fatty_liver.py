@@ -1,23 +1,13 @@
-import json
 import os
 
 import numpy as np
 import pandas as pd
-import seaborn as sns
 import xgboost as xgb
-from adjustText import adjust_text
-from matplotlib import pyplot as plt
-from matplotlib_venn import venn3
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import roc_auc_score, roc_curve
-from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import GaussianNB
-from sklearn.neural_network import MLPClassifier
-from wordcloud import WordCloud
 
-from sail_model_optimizer.util.initialise_models import (  # generate_feature_heatmap,
+from sail_model_optimizer.visualizations.visualizations import (  # generate_feature_heatmap,
     calculate_results,
-    generate_feature_frequency_graph,
     generate_feature_wordcloud,
     load_model_from_file,
     plot_feature_venn,
@@ -29,10 +19,10 @@ os.environ["PATH_DIR_RESULTS"] = "/home/adam/sail-model-optimizer/script/flf/res
 path_dir_results = os.environ["PATH_DIR_RESULTS"]
 
 
-df_input_train = pd.read_csv("script/fatty_liver_input_train.csv")
-df_input_test = pd.read_csv("script/fatty_liver_input_test.csv")
-df_output_train = pd.read_csv("script/fatty_liver_output_train.csv")
-df_output_test = pd.read_csv("script/fatty_liver_output_test.csv")
+df_input_train = pd.read_csv("/home/adam/sail-model-optimizer/script/flf/data/fatty_liver_input_train.csv")
+df_input_test = pd.read_csv("/home/adam/sail-model-optimizer/script/flf/data/fatty_liver_input_test.csv")
+df_output_train = pd.read_csv("/home/adam/sail-model-optimizer/script/flf/data/fatty_liver_output_train.csv")
+df_output_test = pd.read_csv("/home/adam/sail-model-optimizer/script/flf/data/fatty_liver_output_test.csv")
 
 
 # Logistic Regression
@@ -51,10 +41,6 @@ bayesian_model, features_bayesian = load_model_from_file(
     path_file_results_bayesian, GaussianNB, df_input_train, df_output_train
 )
 
-# # Neural Network
-# path_file_results_neural = os.path.join(path_dir_results, "neural.json")
-# neural_model = load_model_from_file(path_file_results_neural, MLPClassifier, df_input_train, df_output_train)
-
 array_input_test_xgb = df_input_test[features_xgb].to_numpy()
 array_input_test_lr = df_input_test[features_lr].to_numpy()
 array_input_test_bayesian = df_input_test[features_bayesian].to_numpy()
@@ -68,12 +54,9 @@ model_data = [
 results = calculate_results(model_data, df_output_test)
 
 plot_roc_curves(results)
-
-
 feature_lists = [features_lr, features_xgb, features_bayesian]
 set_labels = ("Logistic", "XGB", "Bayesian")
 plot_feature_venn(feature_lists, set_labels)
-# generate_feature_wordcloud(feature_lists)
+generate_feature_wordcloud(feature_lists)
 # generate_feature_frequency_graph(feature_lists)
-
 visualize_pca(df_input_train, df_output_train, feature_lists)

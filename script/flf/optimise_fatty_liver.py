@@ -28,10 +28,10 @@ df_input_train, df_input_test, df_output_train, df_output_test = train_test_spli
 )
 
 # save train test splits to file
-df_input_train.to_csv("script/fatty_liver_input_train.csv", index=False)
-df_input_test.to_csv("script/fatty_liver_input_test.csv", index=False)
-df_output_train.to_csv("script/fatty_liver_output_train.csv", index=False)
-df_output_test.to_csv("script/fatty_liver_output_test.csv", index=False)
+df_input_train.to_csv("/home/adam/sail-model-optimizer/script/flf/data/fatty_liver_output_test.csv", index=False)
+df_input_test.to_csv("/home/adam/sail-model-optimizer/script/flf/data/fatty_liver_output_test.csv", index=False)
+df_output_train.to_csv("/home/adam/sail-model-optimizer/script/flf/data/fatty_liver_output_test.csv", index=False)
+df_output_test.to_csv("/home/adam/sail-model-optimizer/script/flf/data/fatty_liver_output_test.csv", index=False)
 
 evaluators = [
     RunEvaluatorLogisticRegression(),

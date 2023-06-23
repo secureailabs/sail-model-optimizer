@@ -1,19 +1,14 @@
 import json
 import os
 
-import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-import xgboost as xgb
 from matplotlib_venn import venn3
 from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import StandardScaler
-from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score, roc_curve
-from sklearn.naive_bayes import GaussianNB
-from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler
 from wordcloud import WordCloud
 
@@ -98,7 +93,7 @@ def plot_roc_curves(results):
     ax.legend(loc="lower right", fontsize=10, shadow=True)
 
     # Save the plot to a file with high DPI for better resolution
-    plt.savefig("roc_curves.png", dpi=300)
+    plt.savefig(os.environ["PATH_DIR_RESULTS"] + "/visualizations/roc_curves.png", dpi=300)
     plt.close()
 
 
@@ -113,43 +108,35 @@ def plot_feature_venn(feature_lists, set_labels=("Set 1", "Set 2", "Set 3")):
     plt.title("Venn Diagram of Feature Sets")
 
     # Save the Venn diagram to a file with high DPI for better resolution
-    plt.savefig("subclassifier_feature_comparison.png", dpi=300)
+    plt.savefig(os.environ["PATH_DIR_RESULTS"] + "/visualizations/subclassifier_feature_comparison.png", dpi=300)
     plt.close()
 
 
 def generate_feature_wordcloud(feature_lists):
-    # Flatten the list of feature lists
-    flat_feature_lists = [feature for sublist in feature_lists for feature in sublist]
+    # Combine all feature lists into a single list
+    output_file = os.environ["PATH_DIR_RESULTS"] + "/visualizations/feature_wordcloud.png"
+    all_features = []
+    for feature_list in feature_lists:
+        all_features += feature_list
 
-    # Count the occurrence of each feature
-    feature_counts = {feature: flat_feature_lists.count(feature) for feature in set(flat_feature_lists)}
+    # Create a string containing all the features
+    features_text = " ".join(all_features)
 
-    # Normalize the occurrence counts
-    counts = np.array(list(feature_counts.values()))
-    normalized_counts = np.log10(counts)
-
-    # Generate the word cloud with feature occurrences as size and color based on normalized occurrence
+    # Generate the word cloud with fancy color scheme and frequency-based sizes
     wordcloud = WordCloud(
-        width=800,
-        height=400,
-        background_color="white",
-        color_func=lambda *args, **kwargs: colors.rgb2hex(colors.cm.hot(normalized_counts)),
-        prefer_horizontal=0.8,
-    ).generate_from_frequencies(feature_counts)
+        width=800, height=400, background_color="white", colormap="Spectral", prefer_horizontal=0.9, min_font_size=8
+    ).generate_from_text(features_text)
 
-    # Create a figure and axes
-    fig, ax = plt.subplots(figsize=(10, 6))
+    # Display the word cloud with frequency-based sizes
+    plt.figure(figsize=(10, 5))
+    plt.imshow(wordcloud, interpolation="bilinear")
+    plt.axis("off")
 
-    # Display the word cloud
-    ax.imshow(wordcloud, interpolation="bilinear")
-    ax.set_axis_off()
+    # Save the word cloud to a file
+    wordcloud.to_file(output_file)
 
-    # Add a title
-    ax.set_title("Feature Occurrence Word Cloud", fontsize=14, fontweight="bold")
-
-    # Save the word cloud to a file with high DPI for better resolution
-    plt.savefig("feature_occurrence_wordcloud.png", dpi=300)
-    plt.close()
+    # Show the word cloud
+    plt.show()
 
 
 def generate_feature_frequency_graph(feature_lists):
@@ -205,16 +192,14 @@ def generate_feature_frequency_graph(feature_lists):
     plt.tight_layout()
 
     # Save the graph to a file with high DPI for better resolution
-    plt.savefig("feature_frequency_graph.png", dpi=300)
+    plt.savefig(os.environ["PATH_DIR_RESULTS"] + "/visualizations/feature_frequency_graph.png", dpi=300)
     plt.close()
 
 
-from sklearn.cluster import KMeans
-
-
-def visualize_pca(df_features, df_target, feature_lists, n_components=3, save_path="PCA"):
+def visualize_pca(df_features, df_target, feature_lists, n_components=4, save_path="PCA"):
     unique_features = list(set([feature for sublist in feature_lists for feature in sublist]))
 
+    save_path = os.environ["PATH_DIR_RESULTS"] + "/visualizations/" + save_path
     # Standardize the features
     scaler = StandardScaler()
     features_scaled = scaler.fit_transform(df_features[unique_features])
@@ -240,50 +225,37 @@ def visualize_pca(df_features, df_target, feature_lists, n_components=3, save_pa
     feature_importance = np.abs(pca.components_)
     feature_names = unique_features
 
-    # Perform binary clustering on principal components
-    kmeans = KMeans(n_clusters=2, random_state=42)
-    clusters = kmeans.fit_predict(principal_components[:, :1])  # Using the first three PCs
-
-    # Get value counts for labels by binary cluster
-    label_counts = principal_df.groupby(["target", clusters])["target"].count().unstack()
-
-    # Calculate the ratio of the binary class to the "1.0" label
-    label_ratio = label_counts.loc[1.0].values / label_counts.sum(axis=1).values
-
-    # Plot the data in 3D
-    fig1 = plt.figure(figsize=(15, 15))
-    ax1 = fig1.add_subplot(111, projection="3d")
-
-    # 3D Scatter Plot with Binary Clusters
-    targets = pd.unique(principal_df["target"])
-    colors = ["#5ac8fa", "#ff3b30", "#4cd964", "#ffcc00"]  # Apple-inspired color palette
-    for target, color in zip(targets, colors):
-        indices = principal_df["target"] == target
-        ax1.scatter(
-            principal_df.loc[indices, pc_columns[0]],
-            principal_df.loc[indices, pc_columns[1]],
-            principal_df.loc[indices, pc_columns[2]],
-            c=color,
-            label=f"label: {target}",
-        )
-    ax1.scatter(
-        principal_components[:, 0],
-        principal_components[:, 1],
-        principal_components[:, 2],
-        c=clusters,
-        cmap="binary",
-        alpha=0.2,
-        label=f"PC1 Cluster 1 (Target Ratio: {label_ratio[0]:.2f})\nPC1 Cluster 2 (Target Ratio: {label_ratio[1]:.2f})",
+    # Plot PC4 with shading as the 4th dimension
+    fig = plt.figure(figsize=(12, 8))
+    ax = fig.add_subplot(111, projection="3d")
+    ax.scatter(
+        principal_df[pc_columns[0]],
+        principal_df[pc_columns[1]],
+        principal_df[pc_columns[2]],
+        c=principal_df[pc_columns[3]],  # Use PC4 as the 4th dimension for shading
+        cmap="viridis",  # Use a color spectrum colormap
+        alpha=0.6,
     )
-    ax1.set_xlabel(f"{pc_columns[0]}\n({explained_variance_pc[0]}% variance)")
-    ax1.set_ylabel(f"{pc_columns[1]}\n({explained_variance_pc[1]}% variance)")
-    ax1.set_zlabel(f"{pc_columns[2]}\n({explained_variance_pc[2]}% variance)")
-    ax1.set_title(title)
-    ax1.legend()
+    ax.set_xlabel(pc_columns[0])
+    ax.set_ylabel(pc_columns[1])
+    ax.set_zlabel(pc_columns[2])
+    ax.set_title(f"{title}")
+    plt.colorbar(ax.scatter([], [], [], c=[], cmap="viridis"))  # Add a colorbar as a guide for the 4th dimension
 
-    plt.tight_layout(pad=6)
-    fig1.savefig(save_path + "_scatter.png")  # Save the scatter plot to a file
-    plt.close(fig1)
+    plt.tight_layout()
+    fig.savefig(save_path + "scatter_plot.png")  # Save the PC4 shaded plot to a file
+    plt.close(fig)
+
+    # Scree Plot
+    fig3 = plt.figure(figsize=(8, 6))
+    ax3 = fig3.add_subplot(111)
+    ax3.plot(range(1, n_components + 1), explained_variance_pc, marker="o")
+    ax3.set_xlabel("Principal Components")
+    ax3.set_ylabel("Explained Variance (%)")
+    ax3.set_title("Scree Plot")
+    plt.tight_layout(pad=2)
+    fig3.savefig(save_path + "_scree.png")  # Save the scree plot to a file
+    plt.close(fig3)
 
     # Feature Importance Plots for each PC
     for i in range(n_components):
