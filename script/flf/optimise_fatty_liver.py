@@ -2,9 +2,6 @@ import json
 import os
 
 import pandas as pd
-from pandas import DataFrame
-from sklearn.decomposition import PCA
-from sklearn.metrics import auc, roc_curve
 from sklearn.model_selection import train_test_split
 
 from sail_model_optimizer.model.Bayesian import RunDictBuilderBayesianNetwork, RunEvaluatorBayesianNetwork
@@ -45,12 +42,6 @@ dict_builders = [
     RunDictBuilderNeuralNetwork(),
     RunDictBuilderBayesianNetwork(),
 ]
-
-# evaluators = [RunEvaluatorBayesianNetwork()]
-# dict_builders = [RunDictBuilderBayesianNetwork()]
-
-# evaluators = [RunEvaluatorNeuralNetwork()]
-# dict_builders = [RunDictBuilderNeuralNetwork()]
 
 for evaluator, builder in zip(evaluators, dict_builders):
     optimizer = OptimizerGenetic(

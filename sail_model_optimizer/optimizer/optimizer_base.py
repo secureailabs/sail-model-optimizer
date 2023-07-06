@@ -45,7 +45,7 @@ class OptimizerBase:
         if key_to_drop in dict_for_hash:
             del dict_for_hash[key_to_drop]
 
-        # drop hit count from
+        # drop hit count from hashable parameters of the dict
         path_file_model = os.path.join(path_dir_model, f"{self.hash_dict_sha256(dict_for_hash)}.json")
         if os.path.exists(path_file_model):
             with open(path_file_model, "r") as file_model:

@@ -1,3 +1,4 @@
+import io
 import json
 import os
 
@@ -5,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib_venn import venn3
 from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import StandardScaler
@@ -12,8 +14,49 @@ from sklearn.metrics import roc_auc_score, roc_curve
 from sklearn.preprocessing import StandardScaler
 from wordcloud import WordCloud
 
+# TODO: load model from file
+# def load_model_from_file(path_file_results, model_class, array_input_train, array_output_train):
+# TODO: load model from file
+# dict_run = {}
+# try:
+#     print(f"Reading dict_run {model_class.__name__.lower()}")
+#     with open(path_file_results, "r") as file_model:
+#         dict_run = json.load(file_model)
+# except IOError:
+#     print("Error reading the file!")
 
-def load_model_from_file(path_file_results, model_class, array_input_train, array_output_train):
+# list_feature_selected_model = dict_run["list_feature_selected"]
+# dict_params = dict_run["dict_params_current"]
+# array_input_train_model = array_input_train[list_feature_selected_model].to_numpy()
+
+# model = model_class()
+# model.set_params(**dict_params)
+# model.fit(array_input_train_model, array_output_train)
+
+# return model, list_feature_selected_model
+
+# TODO: load model from file and save
+# def train_model_from_file_save(path_file_results, model_class, array_input_train, array_output_train):
+#     dict_run = {}
+#     try:
+#         print(f"Reading dict_run {model_class.__name__.lower()}")
+#         with open(path_file_results, "r") as file_model:
+#             dict_run = json.load(file_model)
+#     except IOError:
+#         print("Error reading the file!")
+
+#     list_feature_selected_model = dict_run["list_feature_selected"]
+#     dict_params = dict_run["dict_params_current"]
+#     array_input_train_model = array_input_train[list_feature_selected_model].to_numpy()
+
+#     model = model_class()
+#     model.set_params(**dict_params)
+#     model.fit(array_input_train_model, array_output_train)
+
+#     return model, list_feature_selected_model
+
+
+def train_model_from_file(path_file_results, model_class, array_input_train, array_output_train):
     dict_run = {}
     try:
         print(f"Reading dict_run {model_class.__name__.lower()}")
@@ -80,7 +123,7 @@ def plot_roc_curves(results):
         else:
             ax.plot(fpr, tpr, label=label, linewidth=2, linestyle="dotted")
 
-    ax.plot([0, 1], [0, 1], "k--", linewidth=1, linestyle="dashed", alpha=0.7)  # Diagonal line for reference
+    ax.plot([0, 1], [0, 1], "k--", linewidth=1, alpha=0.7)  # Diagonal line for reference
 
     # Set labels and title with custom font properties
     font_family = "Roboto"  # Replace with the font you chose
@@ -93,8 +136,16 @@ def plot_roc_curves(results):
     ax.legend(loc="lower right", fontsize=10, shadow=True)
 
     # Save the plot to a file with high DPI for better resolution
-    plt.savefig(os.environ["PATH_DIR_RESULTS"] + "/visualizations/roc_curves.png", dpi=300)
-    plt.close()
+    # plt.savefig(os.environ["PATH_DIR_RESULTS"] + "/visualizations/roc_curves.png", dpi=300)
+    # plt.close()
+
+    ## Render the figure to a response
+    # buf = io.BytesIO()
+    # fig.savefig(buf, format="png")
+    # buf.seek(0)
+    # print(buf)
+
+    return fig
 
 
 def plot_feature_venn(feature_lists, set_labels=("Set 1", "Set 2", "Set 3")):
@@ -108,8 +159,8 @@ def plot_feature_venn(feature_lists, set_labels=("Set 1", "Set 2", "Set 3")):
     plt.title("Venn Diagram of Feature Sets")
 
     # Save the Venn diagram to a file with high DPI for better resolution
-    plt.savefig(os.environ["PATH_DIR_RESULTS"] + "/visualizations/subclassifier_feature_comparison.png", dpi=300)
-    plt.close()
+    # plt.savefig(os.environ["PATH_DIR_RESULTS"] + "/visualizations/subclassifier_feature_comparison.png", dpi=300)
+    return plt
 
 
 def generate_feature_wordcloud(feature_lists):

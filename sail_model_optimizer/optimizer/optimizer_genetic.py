@@ -181,5 +181,3 @@ class OptimizerGenetic(OptimizerBase):
         if dict_run["score"] > dict_run_old["score"]:
             self.run_dict_builder.save_dict_to_results(dict_run)
             print("New best against test set")
-            # with open("script/best_models/logistic.json", "w") as file_model:
-            #     json.dump(dict_run, file_model)
